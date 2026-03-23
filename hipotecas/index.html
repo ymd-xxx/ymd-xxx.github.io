@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Hipotecas Galicia · 2026</title>
+<style>
+:root {
+  --blue:#1a4fa0; --blue-dark:#123d80; --blue-soft:#e8f0fb;
+  --green:#1a9c60; --green-soft:#e6f7f0; --green-dark:#136b42;
+  --orange:#e07b00; --orange-soft:#fff4e5;
+  --purple:#6c3fc5; --purple-soft:#f0ebff;
+  --red:#c0392b; --red-soft:#fdecea;
+  --ink:#0f1e35; --ink-soft:#2c3e55; --muted:#5a6a7e;
+  --bg:#f0f4fa; --card:#ffffff; --line:#dde6f0;
+  --radius:16px; --shadow:0 8px 28px rgba(15,30,53,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Inter,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+.header{background:linear-gradient(135deg,#0f1e35 0%,#1a4fa0 60%,#1d6cc8 100%);color:#fff;padding:36px 24px 40px;text-align:center;}
+.header h1{font-size:clamp(22px,4vw,36px);font-weight:900;letter-spacing:-.03em;margin-bottom:8px;}
+.header p{color:rgba(255,255,255,.75);font-size:15px;max-width:580px;margin:0 auto;}
+
+.container{max-width:1160px;margin:0 auto;padding:32px 16px 64px;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.tab-btn{padding:10px 20px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);font-size:13px;font-weight:800;color:var(--muted);cursor:pointer;transition:.15s;}
+.tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* CARDS */
+.input-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:20px;border:1px solid var(--line);}
+.input-card h2{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ic-blue{background:var(--blue-soft);}
+.ic-green{background:var(--green-soft);}
+.ic-purple{background:var(--purple-soft);}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;align-items:end;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+.field input,.field select{border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--ink);background:#fff;transition:.15s;font-family:inherit;width:100%;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,79,160,.12);}
+.prefix-wrap{position:relative;}
+.prefix-wrap span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;pointer-events:none;}
+.prefix-wrap input{padding-left:26px;}
+
+.radio-group{display:flex;gap:6px;flex-wrap:wrap;}
+.radio-btn input{display:none;}
+.radio-btn label{display:block;text-align:center;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap;}
+.radio-btn input:checked + label{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);}
+
+.divider{border:none;border-top:1px solid var(--line);margin:18px 0;}
+
+.btn-calc{width:100%;margin-top:18px;padding:15px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;transition:.15s;box-shadow:0 4px 14px rgba(26,79,160,.3);}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,79,160,.4);}
+
+/* RESULTS */
+.results{display:none;}
+.results.visible{display:block;}
+
+/* SUMMARY BOXES */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px;}
+.summary-box{background:var(--card);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--line);text-align:center;}
+.summary-box .s-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
+.summary-box .s-value{font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.summary-box .s-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.box-blue{border-top:3px solid var(--blue);} .box-blue .s-value{color:var(--blue);}
+.box-green{border-top:3px solid var(--green);} .box-green .s-value{color:var(--green);}
+.box-orange{border-top:3px solid var(--orange);} .box-orange .s-value{color:var(--orange);}
+.box-red{border-top:3px solid var(--red);} .box-red .s-value{color:var(--red);}
+.box-purple{border-top:3px solid var(--purple);} .box-purple .s-value{color:var(--purple);}
+
+/* PAREJA CAPACITY */
+.capacity-card{background:linear-gradient(135deg,var(--green-soft),#d0f2e4);border:1px solid #a3d9be;border-radius:var(--radius);padding:22px 24px;margin-bottom:24px;}
+.capacity-card h3{font-size:15px;font-weight:800;color:var(--green-dark);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.capacity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+.cap-item{background:rgba(255,255,255,.7);border-radius:10px;padding:12px 14px;text-align:center;}
+.cap-item .ci-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green-dark);margin-bottom:4px;}
+.cap-item .ci-val{font-size:18px;font-weight:900;color:var(--green-dark);}
+.cap-item .ci-sub{font-size:11px;color:#2a7a52;margin-top:2px;}
+
+/* DESCUENTO PAREJA */
+.pareja-info{background:var(--purple-soft);border:1px solid #c4adee;border-radius:12px;padding:14px 16px;margin-bottom:22px;font-size:13px;color:#3a1d7a;line-height:1.6;}
+.pareja-info strong{font-weight:800;}
+
+/* SECTION TITLE */
+.section-title{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.stag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;}
+.stag-blue{background:var(--blue-soft);color:var(--blue);}
+.stag-green{background:var(--green-soft);color:var(--green-dark);}
+.stag-orange{background:var(--orange-soft);color:var(--orange);}
+
+/* COSTS CARD */
+.costs-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 26px;margin-bottom:22px;border:1px solid var(--line);}
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);}
+.cost-row:last-child{border-bottom:none;}
+.c-name{font-size:14px;color:var(--ink-soft);}
+.c-note{font-size:12px;color:var(--muted);margin-top:1px;}
+.c-amount{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;}
+.total-row{background:var(--blue-soft);margin:8px -26px -22px;padding:14px 26px;border-radius:0 0 var(--radius) var(--radius);}
+.total-row .c-name{font-size:15px;font-weight:800;color:var(--blue);}
+.total-row .c-amount{color:var(--blue);font-size:18px;}
+
+/* INFO BOX */
+.info-box{border-radius:12px;padding:13px 16px;margin-bottom:20px;font-size:13px;line-height:1.55;}
+.info-orange{background:var(--orange-soft);border:1px solid #f5c07a;color:#7a4500;}
+.info-green{background:var(--green-soft);border:1px solid #a3d9be;color:#0f4d2e;}
+.info-blue{background:var(--blue-soft);border:1px solid #b0c8ef;color:#0f2e6a;}
+.info-box strong{display:block;margin-bottom:3px;font-size:14px;}
+
+/* BANKS TABLE */
+.banks-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--line);margin-bottom:24px;}
+.banks-table{width:100%;border-collapse:collapse;}
+.banks-table thead th{background:var(--ink);color:#fff;padding:12px 13px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:left;}
+.banks-table tbody tr{border-bottom:1px solid var(--line);transition:.12s;}
+.banks-table tbody tr:hover{background:var(--blue-soft);}
+.banks-table tbody tr.best-row{background:#fffbea;}
+.banks-table tbody tr:last-child{border-bottom:none;}
+.banks-table tbody td{padding:13px;font-size:13px;color:var(--ink-soft);vertical-align:middle;}
+.banks-table tbody td:first-child{font-weight:700;color:var(--ink);}
+.bank-tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:4px;}
+.tag-fija{background:#e3f0ff;color:#1a4fa0;}
+.tag-var{background:#fff0e3;color:#b05000;}
+.tag-mixta{background:#e8f7ef;color:#1a6c40;}
+.bank-name-cell{display:flex;align-items:center;gap:7px;}
+.bank-initial{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff;flex-shrink:0;}
+.best-badge{font-size:10px;font-weight:800;background:#f5c518;color:#333;padding:2px 6px;border-radius:999px;margin-left:4px;}
+.rate-hl{font-size:15px;font-weight:800;color:var(--ink);}
+.cuota-hl{font-size:14px;font-weight:800;color:var(--blue);}
+.green-hl{color:var(--green-dark);}
+.tae-cell{font-size:13px;}
+.cond-cell{font-size:11px;color:var(--muted);max-width:200px;}
+
+/* MIXED TABLE */
+.mixed-section{margin-bottom:24px;}
+
+/* NOTES */
+.notes{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);padding:20px 24px;font-size:13px;color:var(--muted);line-height:1.6;}
+.notes h3{font-size:14px;font-weight:800;color:var(--ink-soft);margin-bottom:10px;}
+.notes ul{padding-left:18px;}
+.notes ul li{margin-bottom:5px;}
+
+/* HIDDEN SECTION */
+.section-panel{display:none;}
+.section-panel.active{display:block;}
+
+@media(max-width:700px){
+  .form-grid,.form-grid-2{grid-template-columns:1fr 1fr;}
+  .banks-table thead th:nth-child(5),.banks-table tbody td:nth-child(5){display:none;}
+  .header{padding:24px 16px 28px;}
+  .costs-card{padding:18px 14px;}
+  .total-row{margin:8px -14px -18px;padding:13px 14px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏠 Calculadora Hipotecas Galicia 2026</h1>
+  <p>Precio → entrada, impuestos, gastos y comparativa de más de 15 bancos. Incluye simulación para parejas y bonificaciones fiscales.</p>
+</div>
+
+<div class="container">
+
+  <!-- INPUT CARD -->
+  <div class="input-card">
+    <h2><span class="section-icon ic-blue">🏡</span> Datos de la compra</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Precio de compra</label>
+        <div class="prefix-wrap"><span>€</span>
+          <input type="number" id="precio" value="200000" min="30000" max="3000000" step="1000">
+        </div>
+      </div>
+      <div class="field">
+        <label>Plazo hipoteca</label>
+        <select id="plazo">
+          <option value="10">10 años</option>
+          <option value="15">15 años</option>
+          <option value="20">20 años</option>
+          <option value="25" selected>25 años</option>
+          <option value="30">30 años</option>
+          <option value="35">35 años</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo de vivienda</label>
+        <select id="tipoVivienda">
+          <option value="segunda">2ª mano</option>
+          <option value="nueva">Nueva construcción</option>
+          <option value="vpo">VPO / Protección oficial</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Uso</label>
+        <div class="radio-group">
+          <div class="radio-btn"><input type="radio" name="uso" id="usoH" value="habitual" checked><label for="usoH">Habitual</label></div>
+          <div class="radio-btn"><input type="radio" name="uso" id="usoI" value="inversion"><label for="usoI">Inversión</label></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h2 style="margin-bottom:14px;"><span class="section-icon ic-green">👥</span> ¿Quién compra?</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Perfil del comprador</label>
+        <select id="perfilComprador" onchange="togglePerfilUI()">
+          <option value="solo">Comprador individual</option>
+          <option value="pareja">Pareja / Matrimonio</option>
+          <option value="fnumerosa">Familia numerosa</option>
+          <option value="monoparental">Familia monoparental (2+ hijos)</option>
+        </select>
+      </div>
+      <div class="field" id="fieldEdad1">
+        <label id="labelEdad1">Edad comprador</label>
+        <div class="radio-group">
+          <div class="radio-btn"><input type="radio" name="edad1" id="e1J" value="joven"><label for="e1J">&lt; 36 años</label></div>
+          <div class="radio-btn"><input type="radio" name="edad1" id="e1A" value="adulto" checked><label for="e1A">≥ 36 años</label></div>
+        </div>
+      </div>
+      <div class="field" id="fieldEdad2" style="display:none;">
+        <label>Edad pareja</label>
+        <div class="radio-group">
+          <div class="radio-btn"><input type="radio" name="edad2" id="e2J" value="joven"><label for="e2J">&lt; 36 años</label></div>
+          <div class="radio-btn"><input type="radio" name="edad2" id="e2A" value="adulto" checked><label for="e2A">≥ 36 años</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INGRESOS PAREJA -->
+    <div id="ingresosPanel" style="display:none;margin-top:16px;">
+      <div class="form-grid-2">
+        <div class="field">
+          <label id="labelSalario1">Salario neto mensual (tú)</label>
+          <div class="prefix-wrap"><span>€</span>
+            <input type="number" id="salario1" value="2000" min="500" max="20000" step="100">
+          </div>
+        </div>
+        <div class="field" id="fieldSalario2">
+          <label>Salario neto mensual (pareja)</label>
+          <div class="prefix-wrap"><span>€</span>
+            <input type="number" id="salario2" value="1800" min="500" max="20000" step="100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcular()">📊 Calcular hipoteca</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <!-- SUMMARY BOXES -->
+    <div class="summary-grid" id="summaryGrid"></div>
+
+    <!-- CAPACITY (pareja) -->
+    <div id="capacityCard" style="display:none;"></div>
+
+    <!-- PAREJA / DESCUENTOS INFO -->
+    <div id="parejaInfo"></div>
+
+    <!-- TAX INFO -->
+    <div id="taxInfo"></div>
+
+    <!-- COSTS BREAKDOWN -->
+    <div class="costs-card">
+      <div class="section-title">💶 Desglose gastos de compra <span class="stag stag-blue">Galicia 2026</span></div>
+      <div id="costsBreakdown"></div>
+    </div>
+
+    <!-- WARNING -->
+    <div class="info-box info-orange">
+      <strong>⚠️ Regla del 20%+10%</strong>
+      Los bancos financian máx. 80% del valor de tasación. Necesitas el <strong>20% de entrada</strong> + <strong>~10% para gastos</strong>. En la práctica, calcula tener ahorrado entre el <strong>28–32%</strong> del precio total.
+    </div>
+
+    <!-- TABS BANCOS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('fija',this)">🔒 Tipo fijo</button>
+      <button class="tab-btn" onclick="switchTab('variable',this)">📈 Variable</button>
+      <button class="tab-btn" onclick="switchTab('mixta',this)">🔀 Mixta</button>
+    </div>
+
+    <!-- FIJA -->
+    <div id="tab-fija" class="section-panel active">
+      <div class="section-title">🏦 Hipotecas a tipo fijo <span class="stag stag-blue" id="banksTagFija">25 años</span></div>
+      <div class="banks-card">
+        <table class="banks-table">
+          <thead><tr>
+            <th>Banco</th><th>TIN Fijo</th><th>TAE</th><th>Cuota/mes</th><th>Condiciones clave</th>
+          </tr></thead>
+          <tbody id="tFija"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VARIABLE -->
+    <div id="tab-variable" class="section-panel">
+      <div class="section-title">📈 Hipotecas a tipo variable <span class="stag stag-orange">Euríbor 12M ≈ 2,45% · ene 2026</span></div>
+      <div class="banks-card">
+        <table class="banks-table">
+          <thead><tr>
+            <th>Banco</th><th>Diferencial</th><th>TAE actual</th><th>Cuota/mes</th><th>Condiciones clave</th>
+          </tr></thead>
+          <tbody id="tVariable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MIXTA -->
+    <div id="tab-mixta" class="section-panel">
+      <div class="section-title">🔀 Hipotecas mixtas <span class="stag stag-green">Fijo inicial + Variable</span></div>
+      <div class="banks-card">
+        <table class="banks-table">
+          <thead><tr>
+            <th>Banco</th><th>Tipo mixto</th><th>TAE</th><th>Cuota/mes (fase fija)</th><th>Condiciones clave</th>
+          </tr></thead>
+          <tbody id="tMixta"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes">
+      <h3>📋 Notas importantes</h3>
+      <ul>
+        <li>Cuotas <strong>estimadas</strong>; consulta condiciones personalizadas con cada entidad.</li>
+        <li><strong>Euríbor 12M</strong> de referencia: <strong>~2,45%</strong> (enero 2026). Las cuotas variables pueden subir o bajar.</li>
+        <li>Los tipos vinculados suelen requerir <strong>nómina domiciliada + seguro hogar ± seguro vida</strong>.</li>
+        <li>Desde <strong>noviembre 2018</strong> el banco paga el AJD de la hipoteca. El comprador NO lo abona.</li>
+        <li><strong>Familia numerosa</strong> en Galicia: ITP al 3% (general) o exento (especial). Necesitas el título vigente.</li>
+        <li>Si la pareja tiene <strong>distinta edad</strong>, en Galicia se aplica la bonificación a la <strong>parte alícuota</strong> del comprador menor de 36 (50% si titularidad compartida).</li>
+        <li><strong>Abanca</strong> es el banco de referencia en Galicia con la mayor red de oficinas de la comunidad.</li>
+        <li>Fuentes: HelpMyCash, iAhorro, Rankia, webs oficiales bancos y normativa tributaria Xunta de Galicia (ene 2026).</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const EURIBOR = 2.45;
+
+const BANCOS_FIJOS = [
+  { n:"EVO Banco",        c:"#00b0a0", tin:2.68, tae:2.83, cond:"Sin comisiones. Online. Parte grupo Bankinter.", best:true },
+  { n:"Openbank",         c:"#e30613", tin:2.75, tae:2.90, cond:"Sin comisiones. 100% online (Grupo Santander).", best:true },
+  { n:"Myinvestor",       c:"#5b2d8e", tin:2.75, tae:2.91, cond:"Sin comisiones ni vinculación (Andbank).", best:true },
+  { n:"ING",              c:"#ff6200", tin:2.80, tae:2.96, cond:"Sin comisiones apertura ni amortización." },
+  { n:"Pibank",           c:"#004aad", tin:2.82, tae:2.97, cond:"Online, sin comisiones (Banco Pichincha)." },
+  { n:"Kutxabank",        c:"#004a97", tin:2.85, tae:3.01, cond:"Nómina + seguro hogar + plan pensiones." },
+  { n:"Caja Ingenieros",  c:"#2e7d32", tin:2.87, tae:3.03, cond:"Cooperativa. Perfil técnico/universitario. Sin vinculación dura." },
+  { n:"Abanca",           c:"#00a650", tin:2.90, tae:3.06, cond:"Principal banco en Galicia. Amplia red de oficinas." },
+  { n:"Caja Rural Galega",c:"#5d8c1e", tin:2.92, tae:3.08, cond:"Cooperativa local gallega. Muy presente en rural y costa." },
+  { n:"Laboral Kutxa",    c:"#e63900", tin:2.93, tae:3.09, cond:"Cooperativa Mondragón. Sin comisiones de apertura." },
+  { n:"BBVA",             c:"#004481", tin:2.95, tae:3.11, cond:"Nómina + seguro hogar. App avanzada." },
+  { n:"Triodos Bank",     c:"#00897b", tin:2.98, tae:3.14, cond:"Banco ético. Hipotecas para eficiencia energética A/B." },
+  { n:"Unicaja",          c:"#006633", tin:3.00, tae:3.16, cond:"Nómina domiciliada + seguro hogar." },
+  { n:"CaixaBank",        c:"#007db7", tin:3.05, tae:3.22, cond:"Nómina + seguro vida + seguro hogar." },
+  { n:"Cajamar",          c:"#009e49", tin:3.05, tae:3.21, cond:"Cooperativa. Nómina + seguro hogar." },
+  { n:"Santander",        c:"#ec0000", tin:3.10, tae:3.27, cond:"Nómina + seguro vida." },
+  { n:"Ibercaja",         c:"#f39200", tin:3.10, tae:3.26, cond:"Nómina + seguro vida + plan pensiones." },
+  { n:"Bankinter",        c:"#ff5e14", tin:3.15, tae:3.32, cond:"Nómina + seguro hogar." },
+  { n:"Targobank",        c:"#c8002d", tin:3.15, tae:3.30, cond:"Grupo Crédit Mutuel. Sin plan de pensiones." },
+  { n:"Banca March",      c:"#1a237e", tin:3.18, tae:3.34, cond:"Banca privada. Requiere alto patrimonio o nómina elevada." },
+  { n:"Sabadell",         c:"#0065a4", tin:3.20, tae:3.37, cond:"Nómina + seguro vida + seguro hogar." },
+  { n:"Mediolanum",       c:"#e2001a", tin:3.25, tae:3.40, cond:"Flexible en amortización. Gestor personal." },
+  { n:"Deutsche Bank",    c:"#0018a8", tin:3.30, tae:3.46, cond:"Para perfiles de alta vinculación." },
+  { n:"WiZink",           c:"#6a1b9a", tin:3.35, tae:3.51, cond:"Online. Sin red de oficinas. Sin plan de pensiones." },
+];
+
+const BANCOS_VAR = [
+  { n:"EVO Banco",        c:"#00b0a0", dif:0.48, cond:"Mejor diferencial del mercado. Sin comisiones.", best:true },
+  { n:"Myinvestor",       c:"#5b2d8e", dif:0.59, cond:"Sin vinculación obligatoria. 100% online.", best:true },
+  { n:"Openbank",         c:"#e30613", dif:0.60, cond:"Sin comisiones. 100% online.", best:true },
+  { n:"Kutxabank",        c:"#004a97", dif:0.69, cond:"Nómina + seguro hogar + plan pensiones." },
+  { n:"Laboral Kutxa",    c:"#e63900", dif:0.70, cond:"Cooperativa Mondragón. Sin comisiones apertura." },
+  { n:"Pibank",           c:"#004aad", dif:0.72, cond:"Online, sin comisiones de apertura." },
+  { n:"Caja Rural Galega",c:"#5d8c1e", dif:0.74, cond:"Cooperativa gallega. Muy competitiva en Galicia." },
+  { n:"Bankinter",        c:"#ff5e14", dif:0.75, cond:"Nómina + seguro hogar." },
+  { n:"Triodos Bank",     c:"#00897b", dif:0.75, cond:"Banco ético. Bonificación por eficiencia energética A/B." },
+  { n:"Santander",        c:"#ec0000", dif:0.79, cond:"Nómina + seguro vida." },
+  { n:"Abanca",           c:"#00a650", dif:0.79, cond:"Principal banco en Galicia." },
+  { n:"Caja Ingenieros",  c:"#2e7d32", dif:0.80, cond:"Cooperativa de crédito. Sin plan de pensiones." },
+  { n:"CaixaBank",        c:"#007db7", dif:0.85, cond:"Nómina + seguro vida + seguro hogar." },
+  { n:"Unicaja",          c:"#006633", dif:0.85, cond:"Nómina domiciliada." },
+  { n:"ING",              c:"#ff6200", dif:0.89, cond:"Sin comisiones apertura ni amortización." },
+  { n:"BBVA",             c:"#004481", dif:0.89, cond:"Nómina + seguro hogar." },
+  { n:"Cajamar",          c:"#009e49", dif:0.90, cond:"Cooperativa. Nómina + seguro hogar." },
+  { n:"Ibercaja",         c:"#f39200", dif:0.90, cond:"Nómina + seguro vida." },
+  { n:"Sabadell",         c:"#0065a4", dif:0.90, cond:"Nómina + seguros." },
+  { n:"Targobank",        c:"#c8002d", dif:0.95, cond:"Sin plan de pensiones." },
+  { n:"Banca March",      c:"#1a237e", dif:0.95, cond:"Banca privada. Requiere alto patrimonio." },
+  { n:"WiZink",           c:"#6a1b9a", dif:1.00, cond:"Online. Sin comisiones. Sin red de oficinas." },
+];
+
+const BANCOS_MIXTA = [
+  { n:"EVO Banco",        c:"#00b0a0", tinFija:1.90, añosFija:3,  dif:0.48, tae:2.85, cond:"3 años fijo, luego Euríbor + 0,48%.", best:true },
+  { n:"Openbank",         c:"#e30613", tinFija:2.05, añosFija:5,  dif:0.60, tae:2.92, cond:"5 años fijo, luego Euríbor + 0,60%.", best:true },
+  { n:"Laboral Kutxa",    c:"#e63900", tinFija:1.92, añosFija:5,  dif:0.70, tae:2.90, cond:"5 años fijo. Sin comisiones apertura.", best:true },
+  { n:"Abanca",           c:"#00a650", tinFija:1.95, añosFija:3,  dif:0.79, tae:2.98, cond:"3 años fijo. Red en Galicia." },
+  { n:"Caja Rural Galega",c:"#5d8c1e", tinFija:2.00, añosFija:3,  dif:0.74, tae:2.94, cond:"3 años fijo. Cooperativa gallega." },
+  { n:"Kutxabank",        c:"#004a97", tinFija:2.10, añosFija:10, dif:0.69, tae:2.95, cond:"10 años fijo. Muy estable." },
+  { n:"Bankinter",        c:"#ff5e14", tinFija:2.15, añosFija:5,  dif:0.75, tae:2.97, cond:"5 años fijo." },
+  { n:"Santander",        c:"#ec0000", tinFija:2.20, añosFija:5,  dif:0.79, tae:3.00, cond:"5 años fijo." },
+  { n:"BBVA",             c:"#004481", tinFija:2.20, añosFija:5,  dif:0.89, tae:3.02, cond:"5 años fijo." },
+  { n:"Triodos Bank",     c:"#00897b", tinFija:2.20, añosFija:5,  dif:0.75, tae:2.96, cond:"5 años fijo. Bonificación certif. energético A/B." },
+  { n:"Unicaja",          c:"#006633", tinFija:2.25, añosFija:5,  dif:0.85, tae:3.03, cond:"5 años fijo." },
+  { n:"CaixaBank",        c:"#007db7", tinFija:2.25, añosFija:10, dif:0.85, tae:3.05, cond:"10 años fijo." },
+  { n:"Caja Ingenieros",  c:"#2e7d32", tinFija:2.28, añosFija:5,  dif:0.80, tae:3.01, cond:"5 años fijo. Cooperativa." },
+  { n:"Cajamar",          c:"#009e49", tinFija:2.30, añosFija:3,  dif:0.90, tae:3.05, cond:"3 años fijo." },
+  { n:"Ibercaja",         c:"#f39200", tinFija:2.30, añosFija:10, dif:0.90, tae:3.08, cond:"10 años fijo." },
+  { n:"Sabadell",         c:"#0065a4", tinFija:2.35, añosFija:5,  dif:0.90, tae:3.10, cond:"5 años fijo." },
+];
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function fmt(n, d=0){ return new Intl.NumberFormat('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n)+' €'; }
+function cuota(cap, tinAnual, años){
+  const r = tinAnual/100/12, n = años*12;
+  if(r===0) return cap/n;
+  return cap*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+}
+function ini(n){ return n.slice(0,2).toUpperCase(); }
+
+// ─── UI TOGGLE ────────────────────────────────────────────────────────────────
+function togglePerfilUI(){
+  const p = document.getElementById('perfilComprador').value;
+  const isPareja = p === 'pareja';
+  document.getElementById('fieldEdad2').style.display = isPareja ? '' : 'none';
+  document.getElementById('ingresosPanel').style.display = (isPareja || p === 'solo') ? '' : 'none';
+  document.getElementById('fieldSalario2').style.display = isPareja ? '' : 'none';
+  document.getElementById('labelEdad1').textContent = isPareja ? 'Tu edad' : 'Edad comprador';
+  document.getElementById('labelSalario1').textContent = isPareja ? 'Tu salario neto/mes' : 'Salario neto mensual';
+}
+
+function switchTab(id, btn){
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── TAX LOGIC GALICIA 2026 ───────────────────────────────────────────────────
+function calcImpuestos(precio, tipoViv, uso, joven1, joven2, perfil){
+  let items=[], total=0;
+  const esHabitual = uso === 'habitual';
+  const esFamNumerosa = perfil === 'fnumerosa';
+  const esMonoparental = perfil === 'monoparental';
+
+  if(tipoViv === 'segunda'){
+    let rate = 0.10, nota = 'Tipo general Galicia (10%)';
+    if(esFamNumerosa || esMonoparental){
+      rate = 0.03; nota = 'Tipo reducido familia numerosa/monoparental Galicia (3%)';
+    } else if(joven1 && esHabitual){
+      if(joven2){ // ambos jóvenes → aplicamos al 100% (si titularidad 50/50 aplica al 100%)
+        rate = 0.06; nota = 'Tipo reducido: ambos menores de 36 años, 1ª vivienda habitual (6%)';
+      } else {
+        // Solo uno es menor de 36 → el 6% aplica al 50% de su parte, el otro paga 8% u 10%
+        const parte1 = precio * 0.50;
+        const parte2 = precio * 0.50;
+        const itp1 = parte1 * 0.06;
+        const itp2 = parte2 * (esHabitual && precio<=200000 ? 0.08 : 0.10);
+        const nota1 = '50% parte comprador &lt;36 años → 6%';
+        const nota2 = '50% parte comprador ≥36 años → ' + (esHabitual && precio<=200000 ? '8%' : '10%');
+        items.push({nombre:'ITP · Parte comprador &lt;36 años', nota:nota1, importe:itp1});
+        items.push({nombre:'ITP · Parte comprador ≥36 años', nota:nota2, importe:itp2});
+        total += itp1+itp2;
+        return {items, total};
+      }
+    } else if(esHabitual && precio<=200000){
+      rate = 0.08; nota = 'Tipo reducido vivienda habitual ≤ 200.000 € Galicia (8%)';
+    }
+    const itp = precio*rate; total+=itp;
+    items.push({nombre:'ITP · Impuesto Transmisiones Patrimoniales', nota, importe:itp});
+  } else if(tipoViv === 'nueva'){
+    const iva=precio*0.10, ajd=precio*0.015; total+=iva+ajd;
+    items.push({nombre:'IVA (nueva construcción)', nota:'Tipo reducido (10%)', importe:iva});
+    items.push({nombre:'AJD · Escritura compraventa', nota:'Galicia: 1,5% del precio de compra', importe:ajd});
+  } else {
+    const iva=precio*0.04, ajd=precio*0.005; total+=iva+ajd;
+    items.push({nombre:'IVA · VPO', nota:'Tipo superreducido (4%)', importe:iva});
+    items.push({nombre:'AJD · VPO escritura compraventa', nota:'Tipo reducido VPO Galicia (0,5%)', importe:ajd});
+  }
+  return {items, total};
+}
+
+// ─── MAIN CALCULATE ───────────────────────────────────────────────────────────
+function calcular(){
+  const precio    = parseFloat(document.getElementById('precio').value)||200000;
+  const plazo     = parseInt(document.getElementById('plazo').value)||25;
+  const tipoViv   = document.getElementById('tipoVivienda').value;
+  const uso       = document.querySelector('input[name="uso"]:checked').value;
+  const perfil    = document.getElementById('perfilComprador').value;
+  const joven1    = document.querySelector('input[name="edad1"]:checked').value==='joven';
+  const joven2    = perfil==='pareja' ? document.querySelector('input[name="edad2"]:checked').value==='joven' : false;
+  const sal1      = parseFloat(document.getElementById('salario1').value)||0;
+  const sal2      = perfil==='pareja' ? (parseFloat(document.getElementById('salario2').value)||0) : 0;
+
+  const entrada   = precio*0.20;
+  const hipoteca  = precio*0.80;
+
+  // COSTS
+  const {items:impItems, total:totalImp} = calcImpuestos(precio,tipoViv,uso,joven1,joven2,perfil);
+  let notaria = precio>500000?1700:precio>300000?1300:precio>150000?900:750;
+  let registro = precio>300000?900:precio>150000?600:400;
+  const gestoria=400;
+  let tasacion = precio>500000?600:precio>200000?400:300;
+  const totalGastos = totalImp+notaria+registro+gestoria+tasacion;
+  const totalNecesario = entrada+totalGastos;
+
+  // ── SUMMARY ──
+  const sg = document.getElementById('summaryGrid');
+  sg.innerHTML = `
+    <div class="summary-box box-blue"><div class="s-label">Hipoteca (80%)</div><div class="s-value">${fmt(hipoteca)}</div><div class="s-sub">financiado por el banco</div></div>
+    <div class="summary-box box-orange"><div class="s-label">Entrada (20%)</div><div class="s-value">${fmt(entrada)}</div><div class="s-sub">aportación propia mínima</div></div>
+    <div class="summary-box box-red"><div class="s-label">Gastos compra</div><div class="s-value">${fmt(totalGastos)}</div><div class="s-sub">impuestos + notaría + registro</div></div>
+    <div class="summary-box box-green"><div class="s-label">Capital total necesario</div><div class="s-value">${fmt(totalNecesario)}</div><div class="s-sub">entrada + todos los gastos</div></div>
+    <div class="summary-box box-purple"><div class="s-label">Cuota best fija est.</div><div class="s-value">${fmt(cuota(hipoteca,BANCOS_FIJOS[0].tin,plazo),0)}/mes</div><div class="s-sub">EVO Banco ${BANCOS_FIJOS[0].tin}% TIN · ${plazo}a</div></div>`;
+
+  // ── PAREJA CAPACITY ──
+  const capDiv = document.getElementById('capacityCard');
+  if(perfil==='pareja' && sal1>0){
+    const salTotal = sal1+sal2;
+    const maxCuota = salTotal*0.35;
+    const maxHipotecaCalc = maxCuota/(BANCOS_FIJOS[0].tin/100/12)*
+      (1-Math.pow(1+BANCOS_FIJOS[0].tin/100/12,-(plazo*12)));
+    capDiv.style.display='';
+    capDiv.innerHTML=`<div class="capacity-card">
+      <h3>💑 Capacidad de compra de la pareja (regla del 35% de ingresos)</h3>
+      <div class="capacity-grid">
+        <div class="cap-item"><div class="ci-label">Ingresos netos conjuntos</div><div class="ci-val">${fmt(salTotal)}/mes</div><div class="ci-sub">tú + pareja</div></div>
+        <div class="cap-item"><div class="ci-label">Cuota máx. recomendada</div><div class="ci-val">${fmt(maxCuota,0)}/mes</div><div class="ci-sub">35% de los ingresos</div></div>
+        <div class="cap-item"><div class="ci-label">Hipoteca máx. orientativa</div><div class="ci-val">${fmt(maxHipotecaCalc,0)}</div><div class="ci-sub">a tipo fijo mejor oferta · ${plazo}a</div></div>
+        <div class="cap-item"><div class="ci-label">Precio máx. vivienda</div><div class="ci-val">${fmt(maxHipotecaCalc/0.80,0)}</div><div class="ci-sub">asumiendo financiación al 80%</div></div>
+      </div>
+    </div>`;
+  } else if(perfil==='solo' && sal1>0){
+    const maxCuota=sal1*0.35;
+    const maxHipotecaCalc=maxCuota/(BANCOS_FIJOS[0].tin/100/12)*(1-Math.pow(1+BANCOS_FIJOS[0].tin/100/12,-(plazo*12)));
+    capDiv.style.display='';
+    capDiv.innerHTML=`<div class="capacity-card">
+      <h3>💰 Tu capacidad de compra (regla del 35% de ingresos)</h3>
+      <div class="capacity-grid">
+        <div class="cap-item"><div class="ci-label">Tu salario neto</div><div class="ci-val">${fmt(sal1)}/mes</div></div>
+        <div class="cap-item"><div class="ci-label">Cuota máx. recomendada</div><div class="ci-val">${fmt(maxCuota,0)}/mes</div><div class="ci-sub">35% de tus ingresos</div></div>
+        <div class="cap-item"><div class="ci-label">Hipoteca máx. orientativa</div><div class="ci-val">${fmt(maxHipotecaCalc,0)}</div></div>
+        <div class="cap-item"><div class="ci-label">Precio máx. vivienda</div><div class="ci-val">${fmt(maxHipotecaCalc/0.80,0)}</div></div>
+      </div>
+    </div>`;
+  } else { capDiv.style.display='none'; }
+
+  // ── PAREJA INFO ──
+  const pi = document.getElementById('parejaInfo');
+  if(perfil==='pareja'){
+    let msg='';
+    if(joven1&&joven2){
+      msg=`<strong>✅ Ambos menores de 36 años:</strong> Aplica el tipo reducido del <strong>6% de ITP</strong> sobre el 100% del precio de compraventa (vivienda habitual). Gran ahorro frente al tipo general del 10%.`;
+    } else if(joven1&&!joven2){
+      msg=`<strong>👤 Solo uno menor de 36 años:</strong> En Galicia, la bonificación del 6% de ITP se aplica únicamente a la <strong>parte alícuota del comprador menor de 36</strong> (normalmente 50%). La otra mitad tributa al 8% (habitual &lt;200k€) o 10% general.`;
+    } else {
+      msg=`<strong>👥 Pareja (ambos ≥ 36 años):</strong> No hay bonificación por edad. Aplica el tipo general del 10% (o 8% si vivienda habitual y precio ≤ 200.000 €). Comprar en pareja no genera descuento adicional en el ITP, pero sí <strong>duplica la capacidad de endeudamiento</strong> ante el banco.`;
+    }
+    pi.innerHTML=`<div class="pareja-info"><strong>💑 Compra en pareja — implicaciones fiscales en Galicia</strong><br>${msg}<br><br>📌 <strong>Ventaja principal de comprar en pareja:</strong> los bancos suman los dos salarios para calcular la capacidad hipotecaria. Con dos nóminas normales podéis acceder a hipotecas más altas y obtener mejores condiciones.</div>`;
+  } else if(perfil==='fnumerosa'){
+    pi.innerHTML=`<div class="pareja-info" style="background:var(--green-soft);border-color:#a3d9be;color:#0f4d2e;"><strong>👨‍👩‍👧‍👦 Familia numerosa — bonificación máxima en Galicia</strong><br>
+    Con título de <strong>familia numerosa general (3+ hijos)</strong>: ITP al <strong>3%</strong> para vivienda habitual.<br>
+    Con título de <strong>familia numerosa especial (5+ hijos o circunstancias especiales)</strong>: ITP al <strong>0%</strong> (exento).<br><br>
+    📌 Es obligatorio aportar el <strong>Título de Familia Numerosa vigente</strong> en el momento de la escritura.</div>`;
+  } else if(perfil==='monoparental'){
+    pi.innerHTML=`<div class="pareja-info" style="background:var(--green-soft);border-color:#a3d9be;color:#0f4d2e;"><strong>👩‍👧‍👦 Familia monoparental — Galicia</strong><br>
+    Las familias monoparentales con 2 o más hijos están asimiladas a <strong>familia numerosa general</strong> en Galicia.<br>
+    Tipo ITP reducido: <strong>3%</strong> para vivienda habitual (con título de familia monoparental de la Xunta).</div>`;
+  } else { pi.innerHTML=''; }
+
+  // ── TAX INFO ──
+  const ti = document.getElementById('taxInfo');
+  if(tipoViv==='segunda'){
+    ti.innerHTML=`<div class="info-box info-green"><strong>🏷️ ITP aplicable (Galicia 2026)</strong>General: 10% | Habitual ≤200k: 8% | &lt;36 años habitual: 6% | Familia numerosa: 3% | VPO: 3%.<br>Recuerda: desde 2018 el banco paga el AJD de la hipoteca. <strong>El comprador NO lo abona.</strong></div>`;
+  } else if(tipoViv==='nueva'){
+    ti.innerHTML=`<div class="info-box info-green"><strong>🏷️ Vivienda nueva:</strong> IVA (10%) + AJD sobre escritura compraventa (1,5% en Galicia). El AJD de la hipoteca lo paga el banco.</div>`;
+  } else {
+    ti.innerHTML=`<div class="info-box info-green"><strong>🏷️ VPO:</strong> IVA superreducido (4%) + AJD reducido (0,5%). Existen también condiciones de financiación especiales a través del Plan de Vivienda estatal.</div>`;
+  }
+
+  // ── COSTS BREAKDOWN ──
+  let html='';
+  for(const it of impItems){
+    html+=`<div class="cost-row"><div><div class="c-name">🧾 ${it.nombre}</div><div class="c-note">${it.nota}</div></div><div class="c-amount">${fmt(it.importe)}</div></div>`;
+  }
+  html+=`<div class="cost-row"><div><div class="c-name">📝 Notaría (escritura compraventa)</div><div class="c-note">Arancel orientativo según precio</div></div><div class="c-amount">${fmt(notaria)}</div></div>`;
+  html+=`<div class="cost-row"><div><div class="c-name">🏛️ Registro de la Propiedad</div><div class="c-note">Inscripción de la compraventa</div></div><div class="c-amount">${fmt(registro)}</div></div>`;
+  html+=`<div class="cost-row"><div><div class="c-name">📂 Gestoría</div><div class="c-note">Tramitación documentos y liquidación impuestos</div></div><div class="c-amount">${fmt(gestoria)}</div></div>`;
+  html+=`<div class="cost-row"><div><div class="c-name">🔍 Tasación de la vivienda</div><div class="c-note">Exigida por el banco antes de conceder la hipoteca</div></div><div class="c-amount">${fmt(tasacion)}</div></div>`;
+  html+=`<div class="cost-row total-row"><div><div class="c-name">TOTAL NECESARIO (entrada + gastos)</div><div class="c-note" style="color:var(--blue);opacity:.8">Entrada ${fmt(entrada)} + Gastos ${fmt(totalGastos)}</div></div><div class="c-amount">${fmt(totalNecesario)}</div></div>`;
+  document.getElementById('costsBreakdown').innerHTML=html;
+
+  // ── BANKS TABLES ──
+  document.getElementById('banksTagFija').textContent = plazo+' años';
+
+  // FIJA
+  document.getElementById('tFija').innerHTML = BANCOS_FIJOS.map(b=>{
+    const c=cuota(hipoteca,b.tin,plazo);
+    return `<tr class="${b.best?'best-row':''}">
+      <td><div class="bank-name-cell"><div class="bank-initial" style="background:${b.c}">${ini(b.n)}</div>${b.n}${b.best?'<span class="best-badge">⭐</span>':''}</div></td>
+      <td><span class="rate-hl">${b.tin.toFixed(2)}%</span><span class="bank-tag tag-fija">FIJA</span></td>
+      <td class="tae-cell">${b.tae.toFixed(2)}%</td>
+      <td><span class="cuota-hl">${fmt(c,0)}/mes</span></td>
+      <td class="cond-cell">${b.cond}</td>
+    </tr>`;
+  }).join('');
+
+  // VARIABLE
+  document.getElementById('tVariable').innerHTML = BANCOS_VAR.map(b=>{
+    const tin=EURIBOR+b.dif, tae=tin+0.15, c=cuota(hipoteca,tin,plazo);
+    return `<tr class="${b.best?'best-row':''}">
+      <td><div class="bank-name-cell"><div class="bank-initial" style="background:${b.c}">${ini(b.n)}</div>${b.n}${b.best?'<span class="best-badge">⭐</span>':''}</div></td>
+      <td><span class="rate-hl">Eur + ${b.dif.toFixed(2)}%</span><span class="bank-tag tag-var">VAR</span></td>
+      <td class="tae-cell">${tae.toFixed(2)}% <span style="font-size:11px;color:var(--muted)">(hoy ${tin.toFixed(2)}%)</span></td>
+      <td><span class="cuota-hl">${fmt(c,0)}/mes</span><div style="font-size:11px;color:var(--muted)">a tipo actual</div></td>
+      <td class="cond-cell">${b.cond}</td>
+    </tr>`;
+  }).join('');
+
+  // MIXTA
+  document.getElementById('tMixta').innerHTML = BANCOS_MIXTA.map(b=>{
+    const c=cuota(hipoteca,b.tinFija,plazo);
+    const tinVar=EURIBOR+b.dif;
+    return `<tr class="${b.best?'best-row':''}">
+      <td><div class="bank-name-cell"><div class="bank-initial" style="background:${b.c}">${ini(b.n)}</div>${b.n}${b.best?'<span class="best-badge">⭐</span>':''}</div></td>
+      <td><span class="rate-hl">${b.tinFija.toFixed(2)}%</span> <span style="font-size:12px;color:var(--muted)">${b.añosFija}a fijo</span><br><span style="font-size:12px;">luego Eur+${b.dif.toFixed(2)}% (${tinVar.toFixed(2)}% hoy)</span><span class="bank-tag tag-mixta">MIXTA</span></td>
+      <td class="tae-cell">${b.tae.toFixed(2)}%</td>
+      <td><span class="cuota-hl">${fmt(c,0)}/mes</span><div style="font-size:11px;color:var(--muted)">durante fase fija</div></td>
+      <td class="cond-cell">${b.cond}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  togglePerfilUI();
+  calcular();
+});
+</script>
+</body>
+</html>
